@@ -28,6 +28,9 @@ async function run() {
     const categoriesCollection = client
       .db("usedPhones")
       .collection("categories");
+    const categoriesProductsCollection = client
+      .db("usedPhones")
+      .collection("categoriesProducts");
     const sellOldPhonesGuideCollection = client
       .db("usedPhones")
       .collection("sellOldPhones");
@@ -47,6 +50,19 @@ async function run() {
       const categories = await categoriesCollection.find(query).toArray();
       res.send(categories);
     });
+
+    app.get("/categoriesProducts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { categoryId: id };
+
+      if (id === query.categoryId) {
+        const products = await categoriesProductsCollection
+          .find(query)
+          .toArray();
+        res.send(products);
+      }
+    });
+
     // Update users
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -75,7 +91,7 @@ async function run() {
 run().catch((err) => console.error(err));
 
 app.get("/", (req, res) => {
-  res.send("Used Products Resel Server is running...");
+  res.send("Used Phones Resel Server is running...");
 });
 
 app.listen(port, () => {
