@@ -21,11 +21,52 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const homesCollection = client.db("usedProducts").collection("homes");
-    const usersCollection = client.db("usedProducts").collection("users");
-    const buyersCollection = client.db("usedProducts").collection("buyers");
-    const sellersCollection = client.db("usedProducts").collection("sellers");
+    const homesCollection = client.db("usedPhones").collection("home");
+    const usersCollection = client.db("usedPhones").collection("users");
+    const buyersCollection = client.db("usedPhones").collection("buyers");
+    const sellersCollection = client.db("usedPhones").collection("sellers");
+    const categoriesCollection = client
+      .db("usedPhones")
+      .collection("categories");
+    const sellOldPhonesGuideCollection = client
+      .db("usedPhones")
+      .collection("sellOldPhones");
 
+    // Get guide for used phone resale
+    app.get("/usedPhonesGuide", async (req, res) => {
+      const query = {};
+      const usedPhonesGuide = await sellOldPhonesGuideCollection
+        .find(query)
+        .toArray();
+      res.send(usedPhonesGuide);
+    });
+
+    // Get categories
+    app.get("/categories", async (req, res) => {
+      const query = {};
+      const categories = await categoriesCollection.find(query).toArray();
+      res.send(categories);
+    });
+    // Update users
+    app.put("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const updateUser = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ updateUser, token });
+    });
     console.log("Database Connected...");
   } finally {
   }
