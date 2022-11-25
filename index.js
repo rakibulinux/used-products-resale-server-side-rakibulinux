@@ -26,6 +26,7 @@ function verifyJWT(req, res, next) {
     next();
   });
 }
+
 // Database Connection
 const uri = process.env.DB_URI;
 const client = new MongoClient(uri, {
@@ -50,6 +51,39 @@ async function run() {
     const sellOldPhonesGuideCollection = client
       .db("usedPhones")
       .collection("sellOldPhones");
+
+    // Verfy Admin function
+    const verifyAdmin = async (req, res, next) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const admin = await usersCollection.findOne(query);
+      if (admin?.role !== "admin") {
+        return res.status(403).send(`You dosen't have access to edit this`);
+      }
+      next();
+    };
+
+    // Verfy Seller function
+    const verifySeller = async (req, res, next) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const seller = await usersCollection.findOne(query);
+      if (seller?.role !== "seller") {
+        return res.status(403).send(`You dosen't have access to edit this`);
+      }
+      next();
+    };
+
+    // Verfy Buyer function
+    const verifyBuyer = async (req, res, next) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const buyer = await usersCollection.findOne(query);
+      if (buyer?.role !== "buyer") {
+        return res.status(403).send(`You dosen't have access to edit this`);
+      }
+      next();
+    };
 
     // Get guide for used phone resale
     app.get("/usedPhonesGuide", async (req, res) => {
