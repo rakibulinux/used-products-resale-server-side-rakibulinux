@@ -11,6 +11,21 @@ const port = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
+//Verify JWT function
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(403).send("Not authorization");
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (error, decoded) {
+    if (error) {
+      return res.status(403).send({ message: "Forbidden" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 // Database Connection
 const uri = process.env.DB_URI;
 const client = new MongoClient(uri, {
@@ -89,7 +104,6 @@ async function run() {
     //Post booking
     app.post("/bookings", async (req, res) => {
       const book = req.body;
-      // const filter = {};
       const booking = await bookingsCollection.insertOne(book);
       res.send(booking);
     });
