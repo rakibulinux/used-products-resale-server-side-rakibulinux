@@ -51,6 +51,7 @@ async function run() {
       res.send(categories);
     });
 
+    //Get specific post by id
     app.get("/categoriesProducts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { categoryId: id };
