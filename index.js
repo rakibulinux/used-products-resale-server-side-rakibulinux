@@ -14,6 +14,7 @@ app.use(express.json());
 //Verify JWT function
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
+  // console.log(authHeader);
   if (!authHeader) {
     return res.status(403).send("Not authorization");
   }
@@ -115,7 +116,7 @@ async function run() {
     });
 
     // Get All users
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const query = {};
       const users = await usersCollection.find(query).toArray();
       res.send(users);
@@ -143,21 +144,26 @@ async function run() {
     });
 
     // Get admin user permission
-    app.get("/users/admin/:email", async (req, res) => {
+    app.get("/users/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const adminUser = await usersCollection.findOne(query);
       res.send({ isAdmin: adminUser?.role === "admin" });
     });
     // Get seller user permission
-    app.get("/users/seller/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { email };
-      const sellerUser = await usersCollection.findOne(query);
-      res.send({ isSeller: sellerUser?.role === "seller" });
-    });
+    app.get(
+      "/users/seller/:email",
+      verifyJWT,
+      verifySeller,
+      async (req, res) => {
+        const email = req.params.email;
+        const query = { email };
+        const sellerUser = await usersCollection.findOne(query);
+        res.send({ isSeller: sellerUser?.role === "seller" });
+      }
+    );
     // Get buyer user permission
-    app.get("/users/buyer/:email", async (req, res) => {
+    app.get("/users/buyer/:email", verifyJWT, verifyBuyer, async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const buyerUser = await usersCollection.findOne(query);
