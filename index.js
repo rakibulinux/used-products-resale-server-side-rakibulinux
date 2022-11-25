@@ -23,6 +23,7 @@ async function run() {
   try {
     const homesCollection = client.db("usedPhones").collection("home");
     const usersCollection = client.db("usedPhones").collection("users");
+    const bookingsCollection = client.db("usedPhones").collection("bookings");
     const buyersCollection = client.db("usedPhones").collection("buyers");
     const sellersCollection = client.db("usedPhones").collection("sellers");
     const categoriesCollection = client
@@ -83,6 +84,14 @@ async function run() {
         expiresIn: "1d",
       });
       res.send({ updateUser, token });
+    });
+
+    //Post booking
+    app.post("/bookings", async (req, res) => {
+      const book = req.body;
+      // const filter = {};
+      const booking = await bookingsCollection.insertOne(book);
+      res.send(booking);
     });
     console.log("Database Connected...");
   } finally {
