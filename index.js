@@ -114,6 +114,13 @@ async function run() {
       }
     });
 
+    // Get All users
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const users = await usersCollection.find(query).toArray();
+      res.send(users);
+    });
+
     // Update users
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -157,20 +164,13 @@ async function run() {
       res.send({ isBuyer: buyerUser?.role === "buyer" });
     });
 
-    // app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: ObjectId(id) };
-    //   const options = { upsert: true };
-    //   const updatedDoc = {
-    //     $set: { role: "admin" },
-    //   };
-    //   const adminUser = await usersCollection.updateOne(
-    //     filter,
-    //     updatedDoc,
-    //     options
-    //   );
-    //   res.send(adminUser);
-    // });
+    // Delete buyers or sellers
+    app.delete("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const email = req.body.email;
+      const filter = { _id: ObjectId(id) };
+      const query = { email };
+    });
 
     //Post booking
     app.post("/bookings", async (req, res) => {
