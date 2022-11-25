@@ -135,6 +135,43 @@ async function run() {
       res.send({ updateUser, token });
     });
 
+    // Get admin user permission
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const adminUser = await usersCollection.findOne(query);
+      res.send({ isAdmin: adminUser?.role === "admin" });
+    });
+    // Get seller user permission
+    app.get("/users/seller/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const sellerUser = await usersCollection.findOne(query);
+      res.send({ isSeller: sellerUser?.role === "seller" });
+    });
+    // Get buyer user permission
+    app.get("/users/buyer/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const buyerUser = await usersCollection.findOne(query);
+      res.send({ isBuyer: buyerUser?.role === "buyer" });
+    });
+
+    // app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: ObjectId(id) };
+    //   const options = { upsert: true };
+    //   const updatedDoc = {
+    //     $set: { role: "admin" },
+    //   };
+    //   const adminUser = await usersCollection.updateOne(
+    //     filter,
+    //     updatedDoc,
+    //     options
+    //   );
+    //   res.send(adminUser);
+    // });
+
     //Post booking
     app.post("/bookings", async (req, res) => {
       const book = req.body;
