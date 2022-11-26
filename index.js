@@ -160,21 +160,40 @@ async function run() {
             advertise: "advertise",
           },
         };
+
         const updateProduct = await categoriesProductsCollection.updateOne(
           filter,
           updateDoc,
           option
         );
-
         res.send(updateProduct);
       }
     );
+    //Update advertise
+    app.put("/statusChange/:id", verifyJWT, verifySeller, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: "Available",
+        },
+      };
 
-    //Post for advertise
-    app.post("/advertise", verifyJWT, verifySeller, async (req, res) => {
-      const doc = req.body;
-      console.log(doc);
-      const product = await advertiseCollection.insertOne(doc);
+      const updateProduct = await categoriesProductsCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(updateProduct);
+    });
+
+    //Get advertise Post
+    app.get("/advertise", async (req, res) => {
+      const advertise = req.query.advertise;
+      const filter = { advertise: advertise };
+      console.log(filter);
+      const product = await categoriesProductsCollection.find(filter).toArray();
       res.send(product);
     });
 
