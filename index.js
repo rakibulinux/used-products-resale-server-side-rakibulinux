@@ -38,7 +38,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const homesCollection = client.db("usedPhones").collection("home");
+    const advertiseCollection = client.db("usedPhones").collection("advertise");
     const usersCollection = client.db("usedPhones").collection("users");
     const bookingsCollection = client.db("usedPhones").collection("bookings");
     const buyersCollection = client.db("usedPhones").collection("buyers");
@@ -102,6 +102,17 @@ async function run() {
       res.send(categories);
     });
 
+    //Post a products
+    app.post(
+      "/categoriesProducts",
+      verifyJWT,
+      verifySeller,
+      async (req, res) => {
+        const doc = req.body;
+        const product = await categoriesProductsCollection.insertOne(doc);
+        res.send(product);
+      }
+    );
     //Get specific post by id
     app.get("/categoriesProducts/:id", async (req, res) => {
       const id = req.params.id;
@@ -113,6 +124,58 @@ async function run() {
           .toArray();
         res.send(products);
       }
+    });
+
+    //Get specific post by email
+    app.get(
+      "/categoriesProducts",
+      verifyJWT,
+      verifySeller,
+      async (req, res) => {
+        const email = req.query.email;
+        const decoedEmail = req.decoded.email;
+        if (email !== decoedEmail) {
+          return res.status(403).send({ message: "forbidden access" });
+        }
+        const query = { email: email };
+        console.log(query);
+        const products = await categoriesProductsCollection
+          .find(query)
+          .toArray();
+        res.send(products);
+      }
+    );
+
+    //Update advertise
+    app.put(
+      "/categoriesProducts/:id",
+      verifyJWT,
+      verifySeller,
+      async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const option = { upsert: true };
+        const updateDoc = {
+          $set: {
+            advertise: "advertise",
+          },
+        };
+        const updateProduct = await categoriesProductsCollection.updateOne(
+          filter,
+          updateDoc,
+          option
+        );
+
+        res.send(updateProduct);
+      }
+    );
+
+    //Post for advertise
+    app.post("/advertise", verifyJWT, verifySeller, async (req, res) => {
+      const doc = req.body;
+      console.log(doc);
+      const product = await advertiseCollection.insertOne(doc);
+      res.send(product);
     });
 
     // Get All users
