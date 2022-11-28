@@ -217,6 +217,24 @@ async function run() {
       res.send(users);
     });
 
+    app.put("/users/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          verify: true,
+        },
+      };
+
+      const updateUser = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(updateUser);
+    });
+
     // Update users
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
